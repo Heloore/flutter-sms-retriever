@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
+import java.security.Signature
 import java.util.*
 
 class AppSignatureHelper(context: Context) : ContextWrapper(context) {
@@ -28,8 +29,16 @@ class AppSignatureHelper(context: Context) : ContextWrapper(context) {
             // Get all package signatures for the current package
             val packageName = packageName
             val packageManager = packageManager
-            val signatures = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures
+            val signatures: Array<android.content.pm.Signature>
 
+            signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.getPackageInfo(
+                    packageName,
+                    PackageManager.GET_SIGNING_CERTIFICATES
+                ).signingInfo.signingCertificateHistory
+            } else {
+                packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures
+            }
             // For each signature create a compatible hash
             signatures
                     .mapNotNull { hash(packageName, it.toCharsString()) }

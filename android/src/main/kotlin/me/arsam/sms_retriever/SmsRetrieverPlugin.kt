@@ -5,9 +5,11 @@ import android.app.Activity.RESULT_OK
 import android.app.PendingIntent
 import android.content.*
 import android.content.ContentValues.TAG
+import android.os.Build
 import android.util.Log
 import androidx.annotation.NonNull
 import androidx.annotation.Nullable
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat.startIntentSenderForResult
 import com.google.android.gms.auth.api.credentials.*
 import com.google.android.gms.auth.api.credentials.HintRequest.Builder
@@ -98,6 +100,7 @@ class SmsRetrieverPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
         mBinding = null
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
             "getAppSignature" -> {
@@ -209,12 +212,22 @@ class SmsRetrieverPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             "startSmsListener" -> {
                 pendingResult = result
                 smsReceiver = SmsBroadcastReceiver()
-                mContext.registerReceiver(
-                        smsReceiver,
-                        IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION),
-                        SmsRetriever.SEND_PERMISSION,
-                        null,
-                )
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                     mContext.registerReceiver(
+                         smsReceiver,  
+                         IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION), 
+                         SmsRetriever.SEND_PERMISSION,
+                         null,
+                         Context.RECEIVER_EXPORTED
+                    )
+                } else {
+                     mContext.registerReceiver(
+                         smsReceiver,
+                         IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION),
+                         SmsRetriever.SEND_PERMISSION,
+                         null,
+                    )
+                }
                 SmsRetriever.getClient(mContext).startSmsRetriever()
             }
             "stopSmsListener" -> {

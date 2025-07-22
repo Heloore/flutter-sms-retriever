@@ -26,27 +26,28 @@ class AppSignatureHelper(context: Context) : ContextWrapper(context) {
         val appCodes = ArrayList<String>()
 
         return try {
-            // Get all package signatures for the current package
+         // Get all package signatures for the current package
             val packageName = packageName
             val packageManager = packageManager
-            val signatures: Array<android.content.pm.Signature>
+            val signatures: Array<android.content.pm.Signature>?
 
             signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 packageManager.getPackageInfo(
                     packageName,
                     PackageManager.GET_SIGNING_CERTIFICATES
-                ).signingInfo.signingCertificateHistory
+                ).signingInfo?.signingCertificateHistory // Use safe call (?.) to handle nullability
             } else {
                 packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures
             }
             // For each signature create a compatible hash
             signatures
-                    .mapNotNull { hash(packageName, it.toCharsString()) }
-                    .mapTo(appCodes) { it }
-            return appCodes
-        } catch (e: PackageManager.NameNotFoundException) {
-            Log.e(TAG, "Unable to find package to obtain hash.", e)
-            ArrayList()
+                    ?.mapNotNull { hash(packageName, it.toCharsString()) } // Use safe call (?.) to handle nullability
+                ?.mapTo(appCodes) { it }
+        
+            appCodes
+        } catch (e: Exception) {
+            e.printStackTrace()
+            appCodes
         }
     }
 

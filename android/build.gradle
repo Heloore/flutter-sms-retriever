@@ -7,30 +7,21 @@ buildscript {
         google()
         mavenCentral()
     }
-
     dependencies {
         classpath 'com.android.tools.build:gradle:8.5.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
+// plugins block must come right after buildscript (if present)
 plugins {
-    id 'com.android.application'
+    id 'com.android.library' // Use 'com.android.library' for plugins, not 'com.android.application'
     id 'kotlin-android'
-}
-
-rootProject.allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
 }
 
 android {
     compileSdk 34
-
     namespace 'me.arsam.sms_retriever'
-
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
@@ -40,6 +31,13 @@ android {
     }
     lintOptions {
         disable 'InvalidPackage'
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral()
     }
 }
 

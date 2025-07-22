@@ -21,8 +21,12 @@ rootProject.allprojects {
     }
 }
 
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+
 
 android {
     compileSdk 34

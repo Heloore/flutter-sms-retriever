@@ -1,6 +1,11 @@
 group 'me.arsam.sms_retriever'
 version '1.0.0'
 
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+
 buildscript {
     ext.kotlin_version = '2.0.10'
     repositories {
@@ -21,11 +26,6 @@ rootProject.allprojects {
     }
 }
 
-
-plugins {
-    id 'com.android.application'
-    id 'kotlin-android'
-}
 
 
 android {
